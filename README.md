@@ -1,37 +1,21 @@
-modbus4j
-========
+# modbus4j
 
 A high-performance and ease-of-use implementation of the Modbus protocol written in Java by Infinite Automation Systems and Serotonin Software. Supports ASCII, RTU, TCP, and UDP transports as slave or master, automatic request partitioning and response data type parsing.
-
-For support and general help please see our [Forum](https://forum.infiniteautomation.com/category/11/modbus4j-general-discussion)
-
-**Commercial licenses are available by contacting: sales@radixiot.com**
 
 A public Maven Repository is now available with the latest builds add this to your pom.xml
 
 ```xml
 <repositories>
     <repository>
-        <releases>
-            <enabled>false</enabled>
-        </releases>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
-        <id>ias-snapshots</id>
-        <name>Infinite Automation Snapshot Repository</name>
-        <url>https://maven.mangoautomation.net/repository/ias-snapshot/</url>
+        <id>central</id>
+        <url>https://repo.maven.apache.org/maven2</url>
     </repository>
     <repository>
-        <releases>
-            <enabled>true</enabled>
-        </releases>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/gythialy/modbus4j</url>
         <snapshots>
-            <enabled>false</enabled>
+            <enabled>true</enabled>
         </snapshots>
-        <id>ias-releases</id>
-        <name>Infinite Automation Release Repository</name>
-        <url>https://maven.mangoautomation.net/repository/ias-release/</url>
     </repository>
 </repositories>
 ```
@@ -40,8 +24,8 @@ The dependency information is:
 
 ```xml
 <dependency>
-    <groupId>com.infiniteautomation</groupId>
-    <artifactId>modbus4j</artifactId>
-    <version>3.0.3</version>
+  <groupId>com.infiniteautomation</groupId>
+  <artifactId>modbus4j</artifactId>
+  <version>3.1.1</version>
 </dependency>
 ```
