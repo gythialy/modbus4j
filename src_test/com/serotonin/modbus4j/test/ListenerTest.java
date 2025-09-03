@@ -67,7 +67,7 @@ public class ListenerTest {
         processImage.setInput(10, !processImage.getInput(10));
         processImage.setInput(13, !processImage.getInput(13));
 
-        processImage.setNumeric(RegisterRange.INPUT_REGISTER, 20, DataType.FOUR_BYTE_FLOAT, ir1Value += 0.01);
+        processImage.setNumeric(RegisterRange.INPUT_REGISTER, 20, DataType.FOUR_BYTE_FLOAT, ir1Value += 0.01f);
 
         short hr1Value = processImage.getNumeric(RegisterRange.HOLDING_REGISTER, 80, DataType.TWO_BYTE_BCD)
                 .shortValue();
