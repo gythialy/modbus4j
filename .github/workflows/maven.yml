@@ -1,0 +1,78 @@
+name: Build and Deploy to GitHub Packages
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          server-id: github
+          settings-path: ${{ github.workspace }}
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Set project version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            # 提取 tag 名称，去掉 'v' 前缀（如果有的话）
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            VERSION=${TAG_NAME#v}
+            echo "Setting version to: $VERSION"
+            ./mvnw versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
+          else
+            # 对于非 tag 构建，确保版本是 SNAPSHOT
+            CURRENT_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
+            if [[ ! $CURRENT_VERSION == *-SNAPSHOT ]]; then
+              echo "Setting SNAPSHOT version: $CURRENT_VERSION-SNAPSHOT"
+              ./mvnw versions:set -DnewVersion=$CURRENT_VERSION-SNAPSHOT -DgenerateBackupPoms=false
+            else
+              echo "Version already is SNAPSHOT: $CURRENT_VERSION"
+            fi
+          fi
+          # 显示当前版本
+          echo "Current project version:"
+          ./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout
+
+      - name: Build with Maven
+        run: ./mvnw clean compile
+
+      - name: Run tests
+        run: ./mvnw test
+
+      - name: Build package
+        run: ./mvnw package
+
+      - name: Deploy to GitHub Packages
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+        run: ./mvnw deploy -s $GITHUB_WORKSPACE/settings.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release (for tags)
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          draft: false
+          prerelease: false
+          generate_release_notes: true
